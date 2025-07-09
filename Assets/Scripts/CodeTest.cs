@@ -4,8 +4,24 @@ using UnityEngine;
 
 public class CodeTest : MonoBehaviour
 {
-    int Number = 0;
+
+    [Header("이동 설정")]
+
+    [Tooltip("이 변수는 속도 값을 설정한다.")]
+    [SerializeField] private float speed;
+
+    [SerializeField] private float speed_01;
+
+    [Range(0, 100)]
+    public int health;
+
+    [Space(50)]
+    [Header("오브젝트 설정")]
     public GameObject temp;
+
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,18 +29,12 @@ public class CodeTest : MonoBehaviour
 
         int myNumber = 10;
 
-        int myNumber2 = FuntionTest_02(myNumber);
-
-        Instantiate(temp);
-
-        GameObject myTemp = Instantiate(temp);
-        myTemp.transform.position = new Vector3(0, 0, 0);
     }
 
     
     void FuntionTest_01()            //따로 파라미터나 리턴 값이 필요 없을 때
     {
-        Number += 1;
+        
     }
 
     int FuntionTest_02(int num)
