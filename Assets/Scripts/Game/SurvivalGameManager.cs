@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,12 +9,28 @@ public class SurvivalGameManager : MonoBehaviour
     [Header("그룹 구성원 템플릿")]
     public GroupMemberSO[] groupMembers;
 
+    [Header("아이템 템플릿")]
+    public ItemSO foodItem;
+    public ItemSO fuelItem;
+    public ItemSO medicineItem;
+
+
     [Header("참조 UI")]
     public Text dayText;                       //날씨 표시
     public Text[] memberStatusTexts;           //멤버 상태 표시
     public Button nextDayButton;              //다음 날짜롷 변경되는 버튼
+    public Text inventoryText;                //인벤토리 표시
 
+    [Header("아이템 버튼")]
+    public Button feedButton;
+    public Button heatButton;                      //난방하기
+    public Button healButton;
+
+    [Header("게임 상태")]
     int currentDay;                               //현재 날짜
+    public int food = 5;                          //음식 개수
+    public int fuel = 3;                          //연료 개수
+    public int medicine = 4;                      //약 개수
 
     //런타임 데이터
     private int[] memberHealth;
@@ -21,12 +38,16 @@ public class SurvivalGameManager : MonoBehaviour
     private int[] memberBodyTemp;
     void Start()
     {
-        InitiallizeGroup();
-        UpdateUI();
 
         currentDay = 1;
 
+        InitiallizeGroup();
+        UpdateUI();
+
         nextDayButton.onClick.AddListener(NextDay);
+        feedButton.onClick.AddListener(UseFoodItem);
+        heatButton.onClick.AddListener(UseFuelItem);
+        healButton.onClick.AddListener(UseMedicionItem);
     }
 
 
@@ -53,7 +74,11 @@ public class SurvivalGameManager : MonoBehaviour
     {
         dayText.text =$"Day {currentDay}";
 
-        for(int i = 0;i < groupMembers.Length;i++)
+        inventoryText.text = $"음식   : {food} 개\n" +
+                             $"연료   : {fuel} 개\n" +
+                             $"의약품 : {medicine} 개\n";
+
+        for (int i = 0;i < groupMembers.Length;i++)
         {
             if(groupMembers[i] != null && memberStatusTexts[i] != null)
             {
@@ -155,6 +180,62 @@ public class SurvivalGameManager : MonoBehaviour
             text.color = Color.yellow;
         else
             text.color = Color.white;
+    }
+
+    public void UseFoodItem()                                      //음식 아이템 사용
+    {
+        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+
+        food--;
+        UseItemOnAllMembers(foodItem);
+        UpdateUI();
+    }
+
+    public void UseFuelItem()                                         //연료 아이템 사용
+    {
+        if (fuel <= 0 || fuelItem == null) return;                 //오류 처리 방지
+
+        fuel--;
+        UseItemOnAllMembers(fuelItem);
+        UpdateUI();
+    }
+
+    public void UseMedicionItem()                                   //약 아이템 사용
+    {
+        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+
+        medicine--;
+        UseItemOnAllMembers(medicineItem);
+        UpdateUI();
+    }
+
+    void UseItemOnAllMembers(ItemSO item)
+    {
+        for(int i = 0; i < groupMembers.Length; i++)            
+        {
+            if (groupMembers[i] != null && memberHealth[i] > 0)
+            {
+                ApplyItemEffect(i, item);
+            }
+        }
+    }
+    void ApplyItemEffect(int memberIndex, ItemSO item)
+    {
+        GroupMemberSO member = groupMembers[memberIndex];
+
+        //개인 특성을 적용해서 아이ㅏ템 효과 계산
+        int actualHealth = Mathf.RoundToInt(item.healthEffect * member.recoveryRate);
+        int actualHunger = Mathf.RoundToInt(item.hungerEffect * member.foodEfficiency);
+        int actualTemp = item.tempEffect;
+
+        memberHealth[memberIndex] += actualHealth;
+        memberHungry[memberIndex] += actualHunger;
+        memberBodyTemp[memberIndex] += actualTemp;
+
+        memberHealth[memberIndex] = Mathf.Min(memberHealth[memberIndex], member.maxHealth);
+        memberHungry[memberIndex] = Mathf.Min(memberHungry[memberIndex], member.maxHungry);
+        memberBodyTemp[memberIndex] = Mathf.Min(memberBodyTemp[memberIndex], member.normalBodyTemp);
+
     }
     void Update()
     {

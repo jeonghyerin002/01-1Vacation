@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda465e96ea0626418b624830dd72781, type: 3}
+  m_Name: New Item_003
+  m_EditorClassIdentifier: 
+  itemName: "\uC758\uC57D\uD488"
+  itemIcon: {fileID: 0}
+  itemType: 2
+  healthEffect: 25
+  hurgerEffect: 0
+  tempEffect: 0
+  description: "\uC720\uC6A9\uD55C \uC544\uC774\uD15C \uC785\uB2C8\uB2E4."
