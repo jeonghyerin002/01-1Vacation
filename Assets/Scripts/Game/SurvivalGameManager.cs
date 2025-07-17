@@ -14,6 +14,9 @@ public class SurvivalGameManager : MonoBehaviour
     public ItemSO fuelItem;
     public ItemSO medicineItem;
 
+    [Header("특정 구성원")]
+    public GroupMemberSO[] aMember;
+
 
     [Header("참조 UI")]
     public Text dayText;                       //날씨 표시
@@ -25,6 +28,17 @@ public class SurvivalGameManager : MonoBehaviour
     public Button feedButton;
     public Button heatButton;                      //난방하기
     public Button healButton;
+
+    [Header("구성원당 아이템 사용")]
+    public Button onlyoneFeedButton_01;
+    public Button onlyoneFeedButton_02;
+    public Button onlyoneFeedButton_03;
+    public Button onlyoneFeedButton_04;
+    public Button onlyoneHealButton_01;
+    public Button onlyoneHealButton_02;
+    public Button onlyoneHealButton_03;
+    public Button onlyoneHealButton_04;
+
 
     [Header("게임 상태")]
     int currentDay;                               //현재 날짜
@@ -48,6 +62,17 @@ public class SurvivalGameManager : MonoBehaviour
         feedButton.onClick.AddListener(UseFoodItem);
         heatButton.onClick.AddListener(UseFuelItem);
         healButton.onClick.AddListener(UseMedicionItem);
+
+        onlyoneFeedButton_01.onClick.AddListener(UseOneFoodItem_01);
+        onlyoneFeedButton_02.onClick.AddListener(UseOneFoodItem_02);
+        onlyoneFeedButton_03.onClick.AddListener(UseOneFoodItem_03);
+        onlyoneFeedButton_04.onClick.AddListener(UseOneFoodItem_04);
+
+        onlyoneHealButton_01.onClick.AddListener(UseOneMedicineItem_01);
+        onlyoneHealButton_02.onClick.AddListener(UseOneMedicineItem_02);
+        onlyoneHealButton_03.onClick.AddListener(UseOneMedicineItem_03);
+        onlyoneHealButton_04.onClick.AddListener(UseOneMedicineItem_04);
+
     }
 
 
@@ -99,7 +124,7 @@ public class SurvivalGameManager : MonoBehaviour
 
     void ProcessDailyChange()
     {
-        int baseHungryLoss = -15;
+        int baseHungryLoss = 15;
         int baseTempLoss = 1;
 
         for (int i = 0; i < groupMembers.Length;i++)
@@ -111,12 +136,12 @@ public class SurvivalGameManager : MonoBehaviour
             float hungryMultiplier = member.ageGroup == GroupMemberSO.AgeGroup.Child ? 0.8f : 1.0f;
 
             //상태 감소
-            memberHungry[i] -=Mathf.RoundToInt(baseHungryLoss * hungryMultiplier);
+            memberHungry[i] -= Mathf.RoundToInt(baseHungryLoss * hungryMultiplier);
             memberBodyTemp[i] -= Mathf.RoundToInt(baseTempLoss * member.coldResistance);
 
             //건강체크
-            if (memberHungry[i] <= 0) memberHungry[i] -= 15;
-            if (memberBodyTemp[i] <= 32) memberHealth[i] -= 10;
+            if (memberHungry[i] <= 0) memberHealth[i] -= 15;
+            if (memberHealth[i] <= 32) memberHealth[i] -= 10;
             if (memberBodyTemp[i] <= 30) memberHealth[i] -= 20;
 
             memberHungry[i] = Mathf.Max(0, memberHungry[i]);
@@ -132,6 +157,7 @@ public class SurvivalGameManager : MonoBehaviour
     public void NextDay()
     {
         currentDay += 1;
+
         ProcessDailyChange();
         UpdateUI();
         CheckGameOver();
@@ -190,6 +216,41 @@ public class SurvivalGameManager : MonoBehaviour
         UseItemOnAllMembers(foodItem);
         UpdateUI();
     }
+    public void UseOneFoodItem_01()                                      //과제 테스트용 1
+    {
+        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+
+        food--;
+        ApplyItemEffect(0,foodItem);
+        UpdateUI();
+    }
+
+    public void UseOneFoodItem_02()                                      //과제 테스트용 1
+    {
+        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+
+        food--;
+        ApplyItemEffect(1, foodItem);
+        UpdateUI();
+    }
+
+    public void UseOneFoodItem_03()                                      //과제 테스트용 1
+    {
+        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+
+        food--;
+        ApplyItemEffect(2, foodItem);
+        UpdateUI();
+    }
+
+    public void UseOneFoodItem_04()                                      //과제 테스트용 1
+    {
+        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+
+        food--;
+        ApplyItemEffect(3, foodItem);
+        UpdateUI();
+    }
 
     public void UseFuelItem()                                         //연료 아이템 사용
     {
@@ -200,6 +261,7 @@ public class SurvivalGameManager : MonoBehaviour
         UpdateUI();
     }
 
+
     public void UseMedicionItem()                                   //약 아이템 사용
     {
         if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
@@ -207,6 +269,49 @@ public class SurvivalGameManager : MonoBehaviour
         medicine--;
         UseItemOnAllMembers(medicineItem);
         UpdateUI();
+    }
+    public void UseOneMedicineItem_01()                                   //과제 테스트용 1
+    {
+        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+
+        medicine--;
+        ApplyItemEffect(0, medicineItem);
+        UpdateUI();
+    }
+    public void UseOneMedicineItem_02()                                   //과제 테스트용 1
+    {
+        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+
+        medicine--;
+        ApplyItemEffect(1, medicineItem);
+        UpdateUI();
+    }
+    public void UseOneMedicineItem_03()                                   //과제 테스트용 1
+    {
+        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+
+        medicine--;
+        ApplyItemEffect(2, medicineItem);
+        UpdateUI();
+    }
+    public void UseOneMedicineItem_04()                                   //과제 테스트용 1
+    {
+        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+
+        medicine--;
+        ApplyItemEffect(3, medicineItem);
+        UpdateUI();
+    }
+
+    void UseItemOneMember(ItemSO item)           //과제 테스트용 1
+    {
+        for(int i = 0; i < aMember.Length; i++)
+        {
+            if (aMember[i] != null && memberHealth[i] >0)
+            {
+                ApplyItemEffect(i, item);
+            }
+        }
     }
 
     void UseItemOnAllMembers(ItemSO item)
@@ -225,11 +330,11 @@ public class SurvivalGameManager : MonoBehaviour
 
         //개인 특성을 적용해서 아이ㅏ템 효과 계산
         int actualHealth = Mathf.RoundToInt(item.healthEffect * member.recoveryRate);
-        int actualHunger = Mathf.RoundToInt(item.hungerEffect * member.foodEfficiency);
+        int actualHungry = Mathf.RoundToInt(item.hungerEffect * member.foodEfficiency);
         int actualTemp = item.tempEffect;
 
         memberHealth[memberIndex] += actualHealth;
-        memberHungry[memberIndex] += actualHunger;
+        memberHungry[memberIndex] += actualHungry;
         memberBodyTemp[memberIndex] += actualTemp;
 
         memberHealth[memberIndex] = Mathf.Min(memberHealth[memberIndex], member.maxHealth);

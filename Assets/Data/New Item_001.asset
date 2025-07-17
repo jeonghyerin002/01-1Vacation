@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: "\uC74C\uC2DD"
   itemIcon: {fileID: 0}
   itemType: 0
-  healthEffect: 10
-  hurgerEffect: 30
+  healthEffect: 0
+  hungerEffect: 15
   tempEffect: 0
   description: "\uC720\uC6A9\uD55C \uC544\uC774\uD15C \uC785\uB2C8\uB2E4."
