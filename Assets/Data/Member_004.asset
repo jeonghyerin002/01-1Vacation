@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   memberName: "\uAD6C\uC131\uC6D0_001"
   protrait: {fileID: 0}
-  gender: 0
-  ageGroup: 1
+  gender: 1
+  ageGroup: 2
   maxHealth: 100
   maxHungry: 100
   normalBodyTemp: 37

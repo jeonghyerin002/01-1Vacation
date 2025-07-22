@@ -15,7 +15,7 @@ MonoBehaviour:
   memberName: "\uAD6C\uC131\uC6D0_001"
   protrait: {fileID: 0}
   gender: 0
-  ageGroup: 1
+  ageGroup: 0
   maxHealth: 100
   maxHungry: 100
   normalBodyTemp: 37

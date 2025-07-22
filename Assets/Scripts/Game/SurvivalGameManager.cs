@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,15 +31,26 @@ public class SurvivalGameManager : MonoBehaviour
     public Button healButton;
 
     [Header("구성원당 아이템 사용")]
-    public Button onlyoneFeedButton_01;
-    public Button onlyoneFeedButton_02;
-    public Button onlyoneFeedButton_03;
-    public Button onlyoneFeedButton_04;
-    public Button onlyoneHealButton_01;
-    public Button onlyoneHealButton_02;
-    public Button onlyoneHealButton_03;
-    public Button onlyoneHealButton_04;
+    //public Button onlyoneFeedButton_01;
+    //public Button onlyoneFeedButton_02;
+   //public Button onlyoneFeedButton_03;
+    //public Button onlyoneFeedButton_04;
+   // public Button onlyoneHealButton_01;
+    //public Button onlyoneHealButton_02;
+   // public Button onlyoneHealButton_03;
+    //public Button onlyoneHealButton_04;
 
+    //과제 정답
+    [Header("특정 멤버 아이템 소모 버튼")]
+    public Button[] individualFoodButton;
+    public Button[] individualHealButton;
+
+    [Header("이벤트 시스템")]
+    public EventSO[] events;
+    public GameObject eventPopup;
+    public Text eventTitleText;
+    public Text eventDescriptionText;
+    public Button eventConfirmButton;
 
     [Header("게임 상태")]
     int currentDay;                               //현재 날짜
@@ -63,17 +75,45 @@ public class SurvivalGameManager : MonoBehaviour
         heatButton.onClick.AddListener(UseFuelItem);
         healButton.onClick.AddListener(UseMedicionItem);
 
-        onlyoneFeedButton_01.onClick.AddListener(UseOneFoodItem_01);
-        onlyoneFeedButton_02.onClick.AddListener(UseOneFoodItem_02);
-        onlyoneFeedButton_03.onClick.AddListener(UseOneFoodItem_03);
-        onlyoneFeedButton_04.onClick.AddListener(UseOneFoodItem_04);
+        //onlyoneFeedButton_01.onClick.AddListener(UseOneFoodItem_01);
+        //onlyoneFeedButton_02.onClick.AddListener(UseOneFoodItem_02);
+        //onlyoneFeedButton_03.onClick.AddListener(UseOneFoodItem_03);
+        //onlyoneFeedButton_04.onClick.AddListener(UseOneFoodItem_04);
 
-        onlyoneHealButton_01.onClick.AddListener(UseOneMedicineItem_01);
-        onlyoneHealButton_02.onClick.AddListener(UseOneMedicineItem_02);
-        onlyoneHealButton_03.onClick.AddListener(UseOneMedicineItem_03);
-        onlyoneHealButton_04.onClick.AddListener(UseOneMedicineItem_04);
+        //onlyoneHealButton_01.onClick.AddListener(UseOneMedicineItem_01);
+        //onlyoneHealButton_02.onClick.AddListener(UseOneMedicineItem_02);
+        //onlyoneHealButton_03.onClick.AddListener(UseOneMedicineItem_03);
+        //onlyoneHealButton_04.onClick.AddListener(UseOneMedicineItem_04);
+
+        //과제 정답
+        //individualFoodButton[0].onClick.AddListener(GiveFoodToMember0);
+        //individualFoodButton[1].onClick.AddListener(GiveFoodToMember1);
+        //individualFoodButton[2].onClick.AddListener(GiveFoodToMember2);
+        //individualFoodButton[3].onClick.AddListener(GiveFoodToMember3);
+
+        for(int i = 0; i < individualFoodButton.Length && i < groupMembers.Length; i++)
+        {
+            int memberIndex = i;
+            individualFoodButton[i].onClick.AddListener(() => GiveFoodToMember(memberIndex));
+        }
+
+        for(int i = 0; i < individualHealButton.Length && i < groupMembers.Length; i++)
+        {
+            int memberIndex = i;
+            individualHealButton[i].onClick.AddListener(() => HealMember(memberIndex));
+        }
+
+        eventPopup.SetActive(false);
+        eventConfirmButton.onClick.AddListener(CloseEventPopup);
 
     }
+
+    //과제 정답
+   // public void GiveFoodToMember0() { GiveFoodToMember(0); }
+   // public void GiveFoodToMember1() { GiveFoodToMember(1); }
+   // public void GiveFoodToMember2() { GiveFoodToMember(2); }
+   // public void GiveFoodToMember3() { GiveFoodToMember(3); }
+
 
 
     void InitiallizeGroup()
@@ -159,6 +199,7 @@ public class SurvivalGameManager : MonoBehaviour
         currentDay += 1;
 
         ProcessDailyChange();
+        CheckRandomEvent();                  //이벤트 체크
         UpdateUI();
         CheckGameOver();
     }
@@ -208,6 +249,27 @@ public class SurvivalGameManager : MonoBehaviour
             text.color = Color.white;
     }
 
+    //특정멤버만 아이템 사용
+    public void GiveFoodToMember(int memberIndex)          //과제 정답
+    {
+        if (food <= 0 || foodItem == null) return;
+        if (memberHealth[memberIndex] <= 0) return;
+
+        food--;
+        ApplyItemEffect(memberIndex, foodItem);
+        UpdateUI();
+
+    }
+
+    public void HealMember(int memberIndex)              //과제 정답 
+    {
+        if (medicine <= 0 || medicineItem == null) return;
+        if (memberHealth[memberIndex] <= 0) return;
+
+        medicine--;
+        ApplyItemEffect(memberIndex, medicineItem);
+        UpdateUI();
+    }
     public void UseFoodItem()                                      //음식 아이템 사용
     {
         if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
@@ -216,41 +278,41 @@ public class SurvivalGameManager : MonoBehaviour
         UseItemOnAllMembers(foodItem);
         UpdateUI();
     }
-    public void UseOneFoodItem_01()                                      //과제 테스트용 1
-    {
-        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+    //public void UseOneFoodItem_01()                                      //과제 테스트용 1
+    //{
+        //if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
 
-        food--;
-        ApplyItemEffect(0,foodItem);
-        UpdateUI();
-    }
+        //food--;
+        //ApplyItemEffect(0,foodItem);
+        //UpdateUI();
+    //}
 
-    public void UseOneFoodItem_02()                                      //과제 테스트용 1
-    {
-        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+    //public void UseOneFoodItem_02()                                      //과제 테스트용 1
+    //{
+    //    if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
 
-        food--;
-        ApplyItemEffect(1, foodItem);
-        UpdateUI();
-    }
+    //    food--;
+    //    ApplyItemEffect(1, foodItem);
+    //    UpdateUI();
+    //}
 
-    public void UseOneFoodItem_03()                                      //과제 테스트용 1
-    {
-        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+    //public void UseOneFoodItem_03()                                      //과제 테스트용 1
+    //{
+    //    if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
 
-        food--;
-        ApplyItemEffect(2, foodItem);
-        UpdateUI();
-    }
+    //    food--;
+    //    ApplyItemEffect(2, foodItem);
+    //    UpdateUI();
+    //}
 
-    public void UseOneFoodItem_04()                                      //과제 테스트용 1
-    {
-        if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
+    //public void UseOneFoodItem_04()                                      //과제 테스트용 1
+    //{
+    //    if (food <= 0 || foodItem == null) return;                        //오류 처리 방지
 
-        food--;
-        ApplyItemEffect(3, foodItem);
-        UpdateUI();
-    }
+    //    food--;
+    //    ApplyItemEffect(3, foodItem);
+    //    UpdateUI();
+    //}
 
     public void UseFuelItem()                                         //연료 아이템 사용
     {
@@ -270,38 +332,38 @@ public class SurvivalGameManager : MonoBehaviour
         UseItemOnAllMembers(medicineItem);
         UpdateUI();
     }
-    public void UseOneMedicineItem_01()                                   //과제 테스트용 1
-    {
-        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+    //public void UseOneMedicineItem_01()                                   //과제 테스트용 1
+    //{
+    //    if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
 
-        medicine--;
-        ApplyItemEffect(0, medicineItem);
-        UpdateUI();
-    }
-    public void UseOneMedicineItem_02()                                   //과제 테스트용 1
-    {
-        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+    //    medicine--;
+    //    ApplyItemEffect(0, medicineItem);
+    //    UpdateUI();
+    //}
+    //public void UseOneMedicineItem_02()                                   //과제 테스트용 1
+    //{
+    //    if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
 
-        medicine--;
-        ApplyItemEffect(1, medicineItem);
-        UpdateUI();
-    }
-    public void UseOneMedicineItem_03()                                   //과제 테스트용 1
-    {
-        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+    //    medicine--;
+    //    ApplyItemEffect(1, medicineItem);
+    //    UpdateUI();
+    //}
+    //public void UseOneMedicineItem_03()                                   //과제 테스트용 1
+    //{
+    //    if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
 
-        medicine--;
-        ApplyItemEffect(2, medicineItem);
-        UpdateUI();
-    }
-    public void UseOneMedicineItem_04()                                   //과제 테스트용 1
-    {
-        if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
+    //    medicine--;
+    //    ApplyItemEffect(2, medicineItem);
+    //    UpdateUI();
+    //}
+    //public void UseOneMedicineItem_04()                                   //과제 테스트용 1
+    //{
+    //    if (medicine <= 0 || medicineItem == null) return;                  //오류 처리 방지
 
-        medicine--;
-        ApplyItemEffect(3, medicineItem);
-        UpdateUI();
-    }
+    //    medicine--;
+    //    ApplyItemEffect(3, medicineItem);
+    //    UpdateUI();
+    //}
 
     void UseItemOneMember(ItemSO item)           //과제 테스트용 1
     {
@@ -342,8 +404,80 @@ public class SurvivalGameManager : MonoBehaviour
         memberBodyTemp[memberIndex] = Mathf.Min(memberBodyTemp[memberIndex], member.normalBodyTemp);
 
     }
-    void Update()
+
+    //이벤트에 따른 변경 수치 함수
+    void ApplyEventEffects(EventSO eventSO)
     {
-        
+        food += eventSO.foodChange;
+        fuel += eventSO.fuelChange;
+        medicine += eventSO.medicineChange;
+
+        //자원 최소값 보전
+        food = Mathf.Max(0, food);
+        fuel = Mathf.Max(0, fuel);
+        medicine = Mathf.Max(0, medicine);
+
+        //살아있는 멤버에게 상태 변화 적용
+        for (int i = 0; i < groupMembers.Length; i++)
+        {
+            if (groupMembers[i]!= null && memberHealth[i] > 0)
+            {
+                memberHealth[i] += eventSO.healthChange;
+                memberHungry[i] += eventSO.hungerChange;
+                memberBodyTemp[i] += eventSO.tempchange;
+
+                GroupMemberSO member  = groupMembers[i];
+                memberHealth[i] = Mathf.Clamp(memberHealth[i], 0, member.maxHealth);
+                memberHungry[i] = Mathf.Clamp(memberHungry[i], 0, member.maxHungry);
+                memberBodyTemp[i] = Mathf.Clamp(memberBodyTemp[i], 0, member.normalBodyTemp);
+            }
+        }
     }
+
+    void ShowEventPopup(EventSO eventSO)
+    {
+        //팝업 활성화
+        eventPopup.SetActive(true);
+        //텍스트 설정
+        eventTitleText.text = eventSO.eventTitle;
+        eventDescriptionText.text = eventSO.eventDescription;
+        //이벤트 효과 적용
+        ApplyEventEffects(eventSO);
+        //게임 진행 일시정지
+        nextDayButton.interactable = false;
+    }
+
+    public void CloseEventPopup()
+    {
+        eventPopup.SetActive(false);
+        nextDayButton.interactable = true;
+        UpdateUI();
+    }
+    void CheckRandomEvent()
+    {
+        int totalProbability = 0;
+
+        for(int i = 0; i < events.Length; i++)
+        {
+            totalProbability += events[i].probability;
+        }
+
+        if (totalProbability == 0)
+            return;                      //모든 이벤트 확률이 0이면 이벤트 없음
+
+        int roll = Random.Range(1, totalProbability + 1 + 50);
+        int cumualtive = 0;
+
+        for (int i = 0; i < events.Length; i++)
+        {
+            cumualtive += events[i].probability;
+            if(roll <= cumualtive)
+            {
+                ShowEventPopup(events[i]);
+                return;
+            }
+        }
+    }
+
+
 }
