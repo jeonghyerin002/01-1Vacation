@@ -59,9 +59,9 @@ public class SurvivalGameManager : MonoBehaviour
     public int medicine = 4;                      //약 개수
 
     //런타임 데이터
-    private int[] memberHealth;
-    private int[] memberHungry;
-    private int[] memberBodyTemp;
+    public int[] memberHealth;
+    public int[] memberHungry;
+    public int[] memberBodyTemp;
     void Start()
     {
 
@@ -135,7 +135,7 @@ public class SurvivalGameManager : MonoBehaviour
     }
     
 
-    void UpdateUI()
+    public void UpdateUI()
     {
         dayText.text =$"Day {currentDay}";
 
