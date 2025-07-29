@@ -139,32 +139,15 @@ public class Expedition : MonoBehaviour
 
         if(sucess)
         {
-            //성공 : ExenditionSO의 보상 적용
-            gameManager.food += currentExpedition.sucessFuelReWard + rewardBonus;
+            gameManager.food += currentExpedition.sucessFoodReward + rewardBonus;
             gameManager.fuel += currentExpedition.sucessFuelReWard + rewardBonus;
             gameManager.medicine += currentExpedition.sucessMedicineReWard + rewardBonus;
-
-            //탐방 완료한 멤버 약간의 피로
-            gameManager.memberHungry[memberIndex] -= 5;
-        }
-
-        int memberBouns = 0;
-        int finalSuccessRate = currentExpedition.baseSucessRate + memberBouns;
-        finalSucessRate = Mathf.Clamp(finalSucessRate, 5, 95);
-
-        bool success = Random.Range(1, 101) <= finalSucessRate;
-
-        if(sucess)
-        {
-            gameManager.food += currentExpedition.sucessFoodReward;
-            gameManager.fuel += currentExpedition.sucessFuelReWard;
-            gameManager.medicine += currentExpedition.sucessMedicineReWard;
 
             gameManager.memberHungry[memberIndex] -= 5;
 
             resultText.text = $"{member.memberName} {currentExpedition.expeditionName} 성공! (성공률 : {finalSucessRate}% \n" +
-                         $"음식 + {currentExpedition.sucessFoodReward}, 연료 + {currentExpedition.sucessFuelReWard}," +
-                         $"의약품 +{currentExpedition.sucessMedicineReWard}";
+                         $"음식 + {currentExpedition.sucessFoodReward + rewardBonus}, 연료 + {currentExpedition.sucessFuelReWard + rewardBonus}," +
+                         $"의약품 +{currentExpedition.sucessMedicineReWard + rewardBonus}";
 
             resultText.color = Color.green;
 
@@ -183,9 +166,9 @@ public class Expedition : MonoBehaviour
         }
 
         GroupMemberSO memberSO = gameManager.groupMembers[memberIndex];
-        gameManager.memberHungry[memberIndex] += Mathf.Max(0, gameManager.memberHungry[memberIndex]);
-        gameManager.memberBodyTemp[memberIndex] += Mathf.Max(0, gameManager.memberBodyTemp[memberIndex]);
-        gameManager.memberHealth[memberIndex] += Mathf.Max(0, gameManager.memberHealth[memberIndex]); 
+        gameManager.memberHungry[memberIndex] = Mathf.Max(0, gameManager.memberHungry[memberIndex]);
+        gameManager.memberBodyTemp[memberIndex] = Mathf.Max(0, gameManager.memberBodyTemp[memberIndex]);
+        gameManager.memberHealth[memberIndex] = Mathf.Max(0, gameManager.memberHealth[memberIndex]); 
 
         gameManager.UpdateUI();
 
