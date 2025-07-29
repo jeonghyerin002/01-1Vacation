@@ -18,6 +18,14 @@ public class Expedition : MonoBehaviour
     private SurvivalGameManager gameManager;
     private ExpeditionSO currentExpedition;
 
+    [Header("장비 시스템")]
+    public EquipmentSO[] availableEquipmnets;
+    public Dropdown equipmentDropdown;             //드롭다운 UI
+
+    public int selectedEquipmentIndex = 0;         //선택된 장비 인텍스
+    public int[] equipmentDurability;          //각 장비의 내구도
+
+
     public void Start()
     {
         gameManager = GetComponent<SurvivalGameManager>();
@@ -33,14 +41,46 @@ public class Expedition : MonoBehaviour
             int memberIndex = i;
             memberButton[i].onClick.AddListener(() => StartExpedition(memberIndex));
         }
+
+        //내구도 배열 최기화
+        InititalizeEquipmentDurability();
+
+        //드롭다운 설정 추가
+        SetupEquipmentDropdown();
+        equipmentDropdown.onValueChanged.AddListener(OnEquipmentChanged);        //드롭 다운 선택이 변경 될 때 함수를 호출한다
+    }
+
+    void OnEquipmentChanged(int equipmentIndex)
+    {
+        selectedEquipmentIndex = equipmentIndex;
+        UpdateExpeditionInfo();
     }
     void UpdateExpeditionInfo()
     {
         if(currentExpedition != null)
         {
+
+            EquipmentSO selectedEquip = availableEquipmnets[selectedEquipmentIndex];
+
+            //부러진 장비는 보너스 없음
+            int equipBonus = (selectedEquipmentIndex > 0 && equipmentDurability[selectedEquipmentIndex] <= 0) ? 0 : selectedEquip.sucessBonus;
+            int totalSucessRate = currentExpedition.baseSucessRate + equipBonus;
+
+            string durabilityInfo = "";
+
+            if(selectedEquipmentIndex > 0)
+            {
+                if (equipmentDurability[selectedEquipmentIndex] <= 0) durabilityInfo = "(부러진 상태 - 효과 없음)";
+                else durabilityInfo = $"(내구도 : {equipmentDurability[selectedEquipmentIndex]}/{selectedEquip.maxDurability})";
+            }
+
+            
+
             expeditionInfoText.text = $"탐방 :{currentExpedition.expeditionName}\n" +
                                       $"{currentExpedition.description}\n" +
-                                      $"기본 성공률 : {currentExpedition.baseSucessRate}%";
+                                      $"기본 성공률 : {currentExpedition.baseSucessRate}%\n" +
+                                      $"장비 보너스 : +{equipBonus}% {durabilityInfo}\n" +
+                                      $"최종 성공률 : {totalSucessRate}%";
         }
     }
 
@@ -77,12 +117,42 @@ public class Expedition : MonoBehaviour
         memberSelectPanel.SetActive(false);
 
         GroupMemberSO member = gameManager.groupMembers[memberIndex];
+        EquipmentSO selectedEquip = availableEquipmnets[selectedEquipmentIndex];
 
-        int memberBouns = 0;
-        int finalSucessRate = currentExpedition.baseSucessRate + memberBouns;
+        //부러진 장비는 효과 없음
+        bool equipmentBroken = selectedEquipmentIndex > 0 && equipmentDurability[selectedEquipmentIndex] <= 0;
+        int equipBonus = equipmentBroken ? 0 : selectedEquip.sucessBonus;
+        int rewardBonus = equipmentBroken ? 0 : selectedEquip.rewardBonus;
+
+        //성공률 계산 [ExpenditionSO의 기본 성공률 + 장비 보너스]
+        int finalSucessRate = currentExpedition.baseSucessRate + equipBonus;
         finalSucessRate = Mathf.Clamp(finalSucessRate, 5, 95);
 
         bool sucess = Random.Range(1, 101) <= finalSucessRate;
+
+        //장비 내구도 감소 (맨손 제외, 부러지지 않은 장비만)
+        if(selectedEquipmentIndex > 0 && !equipmentBroken)
+        {
+            equipmentDurability[selectedEquipmentIndex] -= 1;
+            SetupEquipmentDropdown();
+        }
+
+        if(sucess)
+        {
+            //성공 : ExenditionSO의 보상 적용
+            gameManager.food += currentExpedition.sucessFuelReWard + rewardBonus;
+            gameManager.fuel += currentExpedition.sucessFuelReWard + rewardBonus;
+            gameManager.medicine += currentExpedition.sucessMedicineReWard + rewardBonus;
+
+            //탐방 완료한 멤버 약간의 피로
+            gameManager.memberHungry[memberIndex] -= 5;
+        }
+
+        int memberBouns = 0;
+        int finalSuccessRate = currentExpedition.baseSucessRate + memberBouns;
+        finalSucessRate = Mathf.Clamp(finalSucessRate, 5, 95);
+
+        bool success = Random.Range(1, 101) <= finalSucessRate;
 
         if(sucess)
         {
@@ -125,5 +195,40 @@ public class Expedition : MonoBehaviour
     void ClearResultText()
     {
         resultText.text = "";
+    }
+
+    void InititalizeEquipmentDurability()             //장비의 내구도 셋틴하는 함수
+    {
+        equipmentDurability = new int[availableEquipmnets.Length];           //장비의 숫자 만큼 배열 선언(동작 선언)
+
+        for(int i = 0; i < availableEquipmnets.Length; i++)
+        {
+            equipmentDurability[i] = availableEquipmnets[i].maxDurability;    //사용 가능한 내구도를 배열에 넣어준다
+        }
+    }
+
+    void SetupEquipmentDropdown()
+    {
+        equipmentDropdown.options.Clear();                //옵션을 초기화 시켜준다
+
+        //장비 옵션들을 드롭다운에 추가(내구도 포함)
+        for(int i = 0; i < availableEquipmnets.Length; ++i)
+        {
+            string equipName = availableEquipmnets[i].equipmentName;
+
+            //내구도가 0이면 (부러진)표시, 맨손 (인텍스 0_)은 제외 (무제한 사용)
+            if (i == 0)
+            {
+                equipmentDropdown.options.Add(new Dropdown.OptionData(equipName));
+            }
+            else if (equipmentDurability[i] <= 0)
+            {
+                equipmentDropdown.options.Add(new Dropdown.OptionData($"{equipName} (부러진)"));
+            }
+            else
+            {
+                equipmentDropdown.options.Add(new Dropdown.OptionData($"{equipName}({equipmentDurability[i]}/ {availableEquipmnets[i].maxDurability})"));
+            }
+        }
     }
 }
